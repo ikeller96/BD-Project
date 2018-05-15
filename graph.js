@@ -19,34 +19,59 @@ var  extraMargin = height + margin.top;
 d3.json("csvjson.json").get(function(error,data) {
 
   //Data mapping to fix the month string
-  var updatedDataArray = data.map(function(obj) {
-    //this takes only the first 7 numbers of the string, turning the string with only year and month
+  var updatedData = data.map(function(obj) {
+    //this gets the month and makes a new year attribute
+    var month = obj.PipelineBirthDate;
+    month = new Date(month);
+    month = (month.getMonth()+1);
+    //this gets the year and makes a new year attribute
+    var year = obj.PipelineBirthDate;
+    year = new Date(year);
+    year = (year.getFullYear());
+    //this formats the original Pipeline Birthdate to be in format mm/yyyy
     var PipelineBirthDate = obj.PipelineBirthDate;
     PipelineBirthDate = new Date(PipelineBirthDate);
     PipelineBirthDate = (PipelineBirthDate.getMonth()+1) + "/" + PipelineBirthDate.getFullYear();
-    // PipelineBirthDate = PipelineBirthDate.split("/");
     //this creates a new array with all attributes and replaces PipelineBirthDate
-    return {...obj , PipelineBirthDate}
+    return {...obj , year , month , PipelineBirthDate }
   })
 
   //Data Filtering so it groups all entries by months
-  updatedDataArray = d3.nest()
+  updatedData = d3.nest()
           .key(function(d){ return d.PipelineBirthDate ; })
-          .entries(updatedDataArray);
+          .entries(updatedData);
 
+  //move all N@N to end of Array
+  for (var i = 0; i < updatedData.length; i++) {
+    var temp;
+    if (updatedData[i].key == "NaN/NaN") {
+      temp = updatedData[i];
+      updatedData.splice(i , i+1);
+      updatedData.push(temp);
+    }
+  }
 
-  // sort the Array to be from oldest to newest
-  // for (var i = 0; i < updatedDataArray.length; i++) {
-  //   for (var j = updatedDataArray.length; j > 0; j--) {
-  //       var tempVariable = 0;
-  //
-  //       if (parseInt(updatedDataArray[i].key.split(3,7) > parseInt(updatedDataArray[i + 1].key.slice(3,7)) {
-  //
-  //       }
-  //   }
-  // }
-
-console.log(updatedDataArray);
+  //sort the Array to be from oldest to newest
+  for (var i = 1; i < updatedData.length; i++) {
+    for (var j = 0; j < updatedData.length - i ; j++) {
+        //checks to see if it needs to drop the year down
+        if (updatedData[j].values[0].year < updatedData[j+1].values[0].year) {
+            var temp = updatedData[j];
+            updatedData[j] = updatedData[j+1];
+            updatedData[j+1] = temp;
+        }
+        //if the years are the same it then checks to see if it needs to switch because of month
+        else if (updatedData[j].values[0].year == updatedData[j+1].values[0].year) {
+          if (updatedData[j].values[0].month > updatedData[j+1].values[0].month) {
+            var temp = updatedData[j];
+            updatedData[j] = updatedData[j+1];
+            updatedData[j+1] = temp;
+          }
+        }
+    }
+  }
+  
+console.log(updatedData);
   //x and y scales that will be used in the axis
   var x = d3.scaleBand()
               //domain = the x axis labels
@@ -80,4 +105,3 @@ console.log(updatedDataArray);
               .attr("transform","translate("+margin.left+","+margin.top+")")
               .call(yAxis);
 });
-
