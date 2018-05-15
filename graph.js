@@ -80,3 +80,4 @@ console.log(updatedDataArray);
               .attr("transform","translate("+margin.left+","+margin.top+")")
               .call(yAxis);
 });
+
