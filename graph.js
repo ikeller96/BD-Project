@@ -5,7 +5,7 @@
 var width = 900;
 var height = 500;
 var margin = {left: 100, right: 50, top: 15, bottom: 0};
-var currentDate = new Date("2019-8-05");
+var currentDate = new Date("2019-5-05");
 var tickValue;
 
 //This array creates the values for the x axis labels. Hard coded because months will never change.
@@ -179,9 +179,9 @@ for (var i = 0; i < functionalData.length; i++) {
 //this will make the color array to change the color eachtime
 var colorArray = [];
 for (var i = 0; i < functionalData.length; i++) {
-  colorArray.push("#D0E3E6");
+  colorArray.push("#8B9EA9");
   colorArray.push("#E9E6E2");
-  colorArray.push("#006679");
+  colorArray.push("#002A42");
   colorArray.push("#AA9C8F");
 }
 
@@ -216,7 +216,13 @@ if (functionalData[11].forecastedNew + functionalData[11].forecastedExisting > 1
 
   //D3 Constructors that are called later
   var xAxis = d3.axisBottom(x);
-  var yAxis = d3.axisLeft(y).tickValues([tickValue,1000000000]);
+
+  if(runningSumUntilDate < 970000000 || runningSumUntilDate > 1030000000){
+    var yAxis = d3.axisLeft(y).tickValues([tickValue,1000000000]);
+  }
+  else{
+    var yAxis = d3.axisLeft(y).tickValues([1000000000]);
+  }
 
   //Creation of the svg in the body tags
   var constructionGraphSvg = d3.select("body")
